@@ -109,7 +109,7 @@ require([
 
 	map.on("layer-add", addLayerToList);
 
-	bgLayer = new ArcGISTiledMapServiceLayer("http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer");
+	bgLayer = new ArcGISTiledMapServiceLayer("//services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer");
 	map.addLayer(bgLayer);
 
 	var screenshotButton = document.getElementById("screenshotButton");

@@ -1,5 +1,5 @@
 ﻿/*global define*/
-define(["dojo/Deferred", "dojo/promise/all"], function (Deferred, all) {
+define(function () {
 
 	/**
 	 * Creates a query string.
@@ -45,34 +45,35 @@ define(["dojo/Deferred", "dojo/promise/all"], function (Deferred, all) {
 
 			if (layer.url) {
 				// Create Deferred for current image loading.
-				deferred = new Deferred();
-				// Setup map service image export parameters.
-				exportParams = {
-					f: "image",
-					size: [map.width, map.height].join(","),
-					bbox: [map.extent.xmin, map.extent.ymin, map.extent.xmax, map.extent.ymax].join(","),
-					bboxSR: map.extent.spatialReference.wkid,
-					format: "png",
-					transparent: true
-				};
-				// Convert params to query string.
-				exportParams = objToQuery(exportParams);
-				// Create the export URL.
-				url = [layer.url, "/export?", exportParams].join("");
-				// Eliminate double slashes before "export".
-				url = url.replace("//export", "/export");
+				deferred = new Promise(function (resolve, reject) {
+					// Setup map service image export parameters.
+					exportParams = {
+						f: "image",
+						size: [map.width, map.height].join(","),
+						bbox: [map.extent.xmin, map.extent.ymin, map.extent.xmax, map.extent.ymax].join(","),
+						bboxSR: map.extent.spatialReference.wkid,
+						format: "png",
+						transparent: true
+					};
+					// Convert params to query string.
+					exportParams = objToQuery(exportParams);
+					// Create the export URL.
+					url = [layer.url, "/export?", exportParams].join("");
+					// Eliminate double slashes before "export".
+					url = url.replace("//export", "/export");
 
-				// Create the image element.
-				image = new Image(map.width, map.height);
-				image.crossOrigin = "anonymous";
-				// Add the current Deferred to the array.
+					// Create the image element.
+					image = new Image(map.width, map.height);
+					image.crossOrigin = "anonymous";
+					// Add the current Deferred to the array.
+					// Add an event listener that will resolve the Deferred once the image has loaded.
+					image.addEventListener("load", function () {
+						resolve(image);
+					}, false);
+					// Set the image's src attribute. This will begin the image loading.
+					image.src = url;
+				});
 				requests.push(deferred);
-				// Add an event listener that will resolve the Deferred once the image has loaded.
-				image.addEventListener("load", function () {
-					deferred.resolve(image);
-				}, false);
-				// Set the image's src attribute. This will begin the image loading.
-				image.src = url;
 			} else {
 				// If the layer doesn't have a URL property, log info to console.
 				console.log("No URL for layer: " + layerId);
@@ -80,7 +81,7 @@ define(["dojo/Deferred", "dojo/promise/all"], function (Deferred, all) {
 		});
 
 		// Once all of the images have loaded, add them to the canvas.
-		return all(requests).then(function (images) {
+		return Promise.all(requests).then(function (images) {
 			// Add the map server images to the canvas.
 			images.forEach(function (image) {
 				ctx.drawImage(image, 0, 0);

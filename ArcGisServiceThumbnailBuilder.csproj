@@ -42,6 +42,9 @@
     <Content Include="Script\layerFactory.js" />
     <Content Include="Script\map-to-canvas.js" />
     <Content Include="Styles\index.css" />
+    <Content Include="Styles\index.min.css">
+      <DependentUpon>index.css</DependentUpon>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
